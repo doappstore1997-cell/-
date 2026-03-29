@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>ລະບົບຄິດໄລ່ເງິນເດືອນນາຍແລະພົນທະຫານສະເພາະບຸກຄົນ 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Phetsarath+OT:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f2d1f;
+            --primary-light: #2d6a4f;
+            --accent: #d4a017;
+            --accent-light: #f4d03f;
+            --income-bg: #f0fdf4;
+            --deduct-bg: #fef2f2;
+            --bg: #f8faf6;
+            --card: #ffffff;
+            --text: #1a2e1a;
+            --border: #d1e8d1;
+            --shadow-lg: 0 10px 40px rgba(15,45,31,0.18);
+            --radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Phetsarath OT', serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* ===== LOGIN ===== */
+        #login-overlay { position: fixed; inset: 0; background: var(--primary); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-box { background: white; padding: 40px 25px; border-radius: var(--radius); width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow-lg); }
+        .dropdown-container { position: relative; text-align: left; margin-bottom: 15px; }
+        .login-input { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 16px; outline: none; }
+        .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: 0 0 10px 10px; max-height: 200px; overflow-y: auto; display: none; z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .dropdown-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .dropdown-item:hover { background: var(--income-bg); }
+        .login-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+        /* ===== HEADER & SLOGAN ===== */
+        .app-header { background: linear-gradient(160deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 40px 20px 70px; text-align: center; position: relative; }
+        .header-inner { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+        .header-badge { display: inline-flex; background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.3); color: var(--accent-light); font-size: 0.8em; padding: 6px 16px; border-radius: 30px; margin-bottom: 15px; }
+        
+        .slogan-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+        .slogan-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.75em; cursor: pointer; transition: 0.3s; font-family: inherit; }
+        .slogan-btn:hover { background: var(--accent); color: var(--primary); border-color: var(--accent); }
+
+        .header-title { font-size: clamp(1.3em, 6vw, 2em); font-weight: bold; line-height: 1.3; margin-bottom: 20px; }
+        .greeting-box { margin-bottom: 20px; border-left: 5px solid var(--accent); padding: 5px 15px; display: none; text-align: left; }
+
+        /* ===== TABS ===== */
+        .tab-bar-wrap { position: sticky; top: 0; z-index: 100; padding: 0 16px; margin-top: -28px; }
+        .tab-bar { display: flex; gap: 8px; background: white; border-radius: 50px; padding: 6px; box-shadow: var(--shadow-lg); max-width: 640px; margin: 0 auto; }
+        .tab-btn { flex: 1; padding: 12px 5px; border: none; border-radius: 44px; background: transparent; color: #5a7a5a; font-weight: bold; cursor: pointer; font-size: 0.85em; font-family: inherit; }
+        .tab-btn.active { background: var(--primary); color: white; }
+
+        /* ===== APP BODY ===== */
+        .app-body { max-width: 680px; margin: 0 auto; padding: 20px 16px; flex: 1; width: 100%; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeUp 0.3s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+
+        .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 16px; overflow: hidden; }
+        .card-header { padding: 12px 20px; font-weight: bold; font-size: 0.9em; }
+        .card-header.income { background: var(--income-bg); color: #166534; }
+        .card-header.special { background: #eff6ff; color: #1d4ed8; }
+        .card-header.deduct { background: var(--deduct-bg); color: #991b1b; }
+        .card-body { padding: 18px 20px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        label { display: block; font-size: 0.75em; font-weight: bold; color: #5a7a5a; margin-bottom: 5px; }
+        select, input { width: 100%; padding: 11px 13px; border: 1.2px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.92em; outline: none; }
+
+        /* ===== RESULT & MODAL ===== */
+        .result-panel { background: linear-gradient(160deg, #0f2d1f 0%, #1b4332 100%); color: white; border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow-lg); text-align: center; }
+        .net-val { font-size: 2.5em; font-weight: bold; color: var(--accent-light); margin: 10px 0; }
+        .btn-detail { background: var(--accent); color: var(--primary); border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold; font-family: inherit; cursor: pointer; margin-top: 15px; }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 20000; display: none; align-items: center; justify-content: center; padding: 15px; }
+        .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 20px; padding: 25px; max-height: 85vh; overflow-y: auto; }
+        .modal-title { font-weight: bold; color: var(--primary); font-size: 1.3em; margin-bottom: 15px; text-align: center; }
+        .modal-desc { line-height: 1.6; font-size: 0.95em; color: #333; margin-bottom: 20px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9em; }
+
+        .app-footer { text-align: center; padding: 30px 20px; }
+        .footer-card { display: inline-flex; align-items: center; gap: 12px; background: white; border: 1px solid var(--border); border-radius: 50px; padding: 8px 18px 8px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+
+<div id="login-overlay">
+    <div class="login-box">
+        <div style="font-size: 45px; margin-bottom: 10px;">🛡️</div>
+        <h2 style="color:var(--primary); margin-bottom:20px;">ເຂົ້າສູ່ລະບົບ 2026</h2>
+        <div class="dropdown-container">
+            <input type="text" id="u_id" class="login-input" placeholder="ຄົ້ນຫາ ຫຼື ເລືອກ ID ກົມກອງ" onfocus="showDropdown()" oninput="filterDropdown()">
+            <div id="dropdown-list" class="dropdown-list"></div>
+        </div>
+        <input type="password" id="u_pass" class="login-input" placeholder="ພິມລະຫັດຜ່ານ">
+        <button onclick="login()" class="login-btn">ຢືນຢັນການເຂົ້າໃຊ້</button>
+    </div>
+</div>
+
+<div class="app-header">
+    <div class="header-inner">
+        <div class="slogan-row">
+            <button class="slogan-btn" onclick="openSlogan('ໂປ່ງໃສ')">⬡ ໂປ່ງໃສ</button>
+            <button class="slogan-btn" onclick="openSlogan('ຊື່ສັດ')">⬡ ຊື່ສັດ</button>
+            <button class="slogan-btn" onclick="openSlogan('ປະຢັດ')">⬡ ປະຢັດ</button>
+            <button class="slogan-btn" onclick="openSlogan('ທັນເວລາ')">⬡ ທັນເວລາ</button>
+        </div>
+
+        <div class="header-badge">📄 ເອກະສານ 360/ກປທ · 2026</div>
+        <div class="header-title">ລະບົບຄິດໄລ່ເງິນເດືອນ<br>ນາຍແລະພົນທະຫານສະເພາະບຸກຄົນ</div>
+
+        <div id="greeting-area" class="greeting-box">
+            <div style="font-size: 1.4em; font-weight: bold; color: var(--accent-light);">ສະບາຍດີ, <span id="display-unit-name"></span>!</div>
+        </div>
+        
+        <button onclick="location.reload()" style="background:none; border:1px solid rgba(255,255,255,0.3); color:white; padding:5px 15px; border-radius:20px; cursor:pointer; font-size:0.7em;">ອອກຈາກລະບົບ</button>
+    </div>
+</div>
+
+<div class="tab-bar-wrap">
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(this,'tab-inc')">💰 ລາຍຮັບ</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-pol')">🎖 ນະໂຍບາຍ</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-ded')">➖ ລາຍຫັກ</button>
+    </div>
+</div>
+
+<div class="app-body">
+    <div id="tab-inc" class="tab-content active">
+        <div class="card">
+            <div class="card-header income">💰 ລາຍຮັບພື້ນຖານ</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>ຊັ້ນຍົດ (16 ຊັ້ນ)</label>
+                    <select id="rank" onchange="calculate()">
+                        <option value="8550000">1 — ພົນເອກ (8,550,000)</option>
+                        <option value="7600000">2 — ພົນໂທ (7,600,000)</option>
+                        <option value="6650000">3 — ພົນຕີ (6,650,000)</option>
+                        <option value="5700000">4 — ພົນຈັດຕະວາ (5,700,000)</option>
+                        <option value="3876000">5 — ພັນເອກ (3,876,000)</option>
+                        <option value="3401000">6 — ພັນໂທ (3,401,000)</option>
+                        <option value="3068500">7 — ພັນຕີ (3,068,500)</option>
+                        <option value="2926000">8 — ຮ້ອຍເອກ (2,926,000)</option>
+                        <option value="2812000" selected>9 — ຮ້ອຍໂທ (2,812,000)</option>
+                        <option value="2736000">10 — ຮ້ອຍຕີ (2,736,000)</option>
+                        <option value="2679000">11 — ວາທີ (2,679,000)</option>
+                        <option value="2650500">12 — ສິບເອກ (2,650,500)</option>
+                        <option value="2631500">13 — ສິບໂທ (2,631,500)</option>
+                        <option value="2574500">14 — ສິບຕີ (2,574,500)</option>
+                        <option value="2555500">15 — ຊັ້ນ I (2,555,500)</option>
+                        <option value="2536500">16 — ຊັ້ນ II (2,536,500)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ຂັ້ນໜ້າທີ່ (20 ຂັ້ນ)</label>
+                    <select id="pos" onchange="calculate()">
+                        <option value="0">-- ບໍ່ມີ --</option>
+                        <option value="4000000">ຂັ້ນ 1: ລັດຖະມົນຕີ (4,000,000)</option>
+                        <option value="3000000">ຂັ້ນ 2: ຮອງລັດຖະມົນຕີ (3,000,000)</option>
+                        <option value="2500000">ຂັ້ນ 3: ຫົວໜ້າກົມໃຫຍ່ (2,500,000)</option>
+                        <option value="2300000">ຂັ້ນ 4: ຮອງກົມໃຫຍ່, ຫົວໜ້າກົມ (2,300,000)</option>
+                        <option value="2000000">ຂັ້ນ 5: ຮອງກົມ, ຫົວໜ້າກອງພົນ (2,000,000)</option>
+                        <option value="1500000">ຂັ້ນ 6: ຫົວໜ້າພະແນກກົມໃຫຍ່ (1,500,000)</option>
+                        <option value="1200000">ຂັ້ນ 6ຍ: ຫົວໜ້າພະແນກກົມ (1,200,000)</option>
+                        <option value="1000000">ຂັ້ນ 6ຍ: ຮອງພະແນກ (1,000,000)</option>
+                        <option value="900000">ຂັ້ນ 7: ຫົວໜ້າກອງພັນໃຫຍ່ (900,000)</option>
+                        <option value="750000">ຂັ້ນ 7ຍ: ຮອງກອງພັນໃຫຍ່ (750,000)</option>
+                        <option value="600000">ຂັ້ນ 8: ຫົວໜ້າຂະແໜງ (600,000)</option>
+                        <option value="500000">ຂັ້ນ 9: ຫົວໜ້າກອງພັນນ້ອຍ (500,000)</option>
+                        <option value="450000">ຂັ້ນ 9ຍ: ຮອງກອງພັນນ້ອຍ (450,000)</option>
+                        <option value="400000">ຂັ້ນ 10: ຮອງກອງພັນນ້ອຍ (400,000)</option>
+                        <option value="350000">ຂັ້ນ 11: ຫົວໜ້າກອງຮ້ອຍ (350,000)</option>
+                        <option value="300000">ຂັ້ນ 12: ຮອງກອງຮ້ອຍ (300,000)</option>
+                        <option value="280000">ຂັ້ນ 13: ຫົວໜ້າໝວດ (280,000)</option>
+                        <option value="260000">ຂັ້ນ 14: ຮອງຫົວໜ້າໝວດ (260,000)</option>
+                        <option value="220000">ຂັ້ນ 15: ຫົວໜ້າໝູ່ (220,000)</option>
+                        <option value="200000">ຂັ້ນ 16: ຮອງຫົວໜ້າໝູ່ (200,000)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>ປີການ (ປີ)</label><input type="number" id="years" value="1" min="0" oninput="calculate()"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-pol" class="tab-content">
+        <div class="card">
+            <div class="card-header special">🎖 ນະໂຍບາຍຊ່ວຍໜູນ</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>ລະດັບການສຶກສາ</label>
+                    <select id="deg" onchange="calculate()">
+                        <option value="0">-- ບໍ່ມີ --</option>
+                        <option value="70000">ປະລິນຍາເອກ (70,000)</option>
+                        <option value="60000">ປະລິນຍາໂທ (60,000)</option>
+                        <option value="50000">ປະລິນຍາຕີ (50,000)</option>
+                        <option value="45000">ຊັ້ນສູງ (45,000)</option>
+                        <option value="40000">ຊັ້ນກາງ (40,000)</option>
+                        <option value="35000">ຊັ້ນຕົ້ນ (35,000)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>ເມຍ</label><select id="wife" onchange="calculate()"><option value="0">ບໍ່ມີ</option><option value="200000">ມີ (200,000)</option></select></div>
+                    <div class="form-group"><label>ລູກ (ຄົນ)</label><input type="number" id="child" value="0" min="0" oninput="calculate()"></div>
+                </div>
+                <div class="form-group"><label>ເງິນກິນເພີ່ມ</label><input type="text" id="eat" placeholder="0" oninput="formatCur(this)"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-ded" class="tab-content">
+        <div class="card">
+            <div class="card-header deduct">➖ ລາຍຫັກ</div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group"><label>ນ້ຳ-ໄຟ</label><input type="number" id="util" value="0" oninput="calculate()"></div>
+                    <div class="form-group"><label>ອື່ນໆ</label><input type="number" id="other" value="0" oninput="calculate()"></div>
+                </div>
+                <div class="form-group"><label>ຄ່າເຂົ້າ / ອັດຕາກິນ</label><input type="number" id="food" value="0" oninput="calculate()"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-panel">
+        <div style="font-size:0.9em; opacity:0.8;">ເງິນສົດຈ່າຍຕົວຈິງ</div>
+        <div class="net-val" id="res_net">0 ກີບ</div>
+        <button class="btn-detail" onclick="openModal('modal-calc')">📊 ເບິ່ງລາຍລະອຽດການຄິດໄລ່</button>
+    </div>
+</div>
+
+<div id="modal-slogan" class="modal" onclick="closeModal('modal-slogan')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 id="slo-title" class="modal-title"></h3>
+        <div id="slo-body" class="modal-desc"></div>
+        <button onclick="closeModal('modal-slogan')" style="width:100%; padding:12px; border:none; border-radius:10px; background:var(--primary); color:white; cursor:pointer;">ເຂົ້າໃຈແລ້ວ ✓</button>
+    </div>
+</div>
+
+<div id="modal-calc" class="modal" onclick="closeModal('modal-calc')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 class="modal-title">📊 ບົດສະຫຼຸບການຄິດໄລ່</h3>
+        <div style="font-weight:bold; color:green; margin-top:10px; border-bottom:1px solid #ddd;">1. ລາຍຮັບ (+)</div>
+        <div id="det-inc"></div>
+        <div style="font-weight:bold; color:red; margin-top:15px; border-bottom:1px solid #ddd;">2. ລາຍຫັກ (-)</div>
+        <div id="det-ded"></div>
+        <div style="margin-top:20px; padding:15px; background:var(--bg); border-radius:10px; border-left:5px solid var(--accent);">
+            <div style="font-weight:bold; display:flex; justify-content:space-between;">
+                <span>ຮັບຕົວຈິງ:</span><span id="det-final" style="color:var(--primary);"></span>
+            </div>
+        </div>
+        <button onclick="closeModal('modal-calc')" style="width:100%; margin-top:20px; padding:12px; border:none; border-radius:10px; background:#eee; cursor:pointer;">ປິດໜ້າຈໍ</button>
+    </div>
+</div>
+
+<div class="app-footer">
+    <div class="footer-card">
+        <div class="footer-avatar">SVX</div>
+        <div class="footer-text">
+            <div style="font-size:0.82em; font-weight:bold; color:var(--primary);">ພັດທະນາໂດຍ SVX</div>
+            <div style="font-size:0.72em; color:#5a7a5a;">ພະນັກງານກົມການເງິນກອງທັບ · 2026</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9t2ZImkVWxiyaU5QnnSuEYdUQzFZLrx-3YP3htp7L60SHmOyW4wLnrzI7g1DDFKIB/exec';
+    const ids = ["100","101","102","103","104","105","106","107","168","201","202","203","204","205","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","401","402","403","404","405","406","407","408","409","410","412","413","414","415","416","418","419","420","421","501","502","503","504","505","506","507","508","509","510","511","512","513","514","515","516","517","518","519","520","521","601","602","603","604","605","908"];
+    let currentUnit = "";
+
+    // Slogan Data
+    const slogData = {
+        'ໂປ່ງໃສ': 'ທຸກຂັ້ນຕອນການເງິນຕ້ອງ <b>ກວດສອບໄດ້</b> ຢ່າງເປີດເຜີຍ. ມີເອກະສານຢັ້ງຢືນຄົບຖ້ວນ, ປະຕິບັດຕາມລະບຽບຫຼັກການ, ບໍ່ມີການປິດບັງ ຫຼື ສໍ້ໂກງງົບປະມານ.',
+        'ຊື່ສັດ': 'ມີ <b>ຈັນຍາບັນ</b> ໃນວິຊາຊີບ ແລະ ຜົນງານ. ບໍ່ໂລບມາກໂລພາ, ປົກປັກຮັກສາຊັບສິນຂອງກອງທັບ, ບໍ່ສວຍໃຊ້ໜ້າທີ່ເພື່ອຜົນປະໂຫຍດສ່ວນຕົວ.',
+        'ປະຢັດ': 'ໃຊ້ຈ່າຍໃຫ້ <b>ຖືກເປົ້າໝາຍ</b> ແລະ ຄຸ້ມຄ່າທີ່ສຸດ. ຕ້ານການຟຸ່ມເຟືອຍ, ນຳໃຊ້ງົບປະມານທີ່ຈຳກັດໃຫ້ເກີດປະໂຫຍດສູງສຸດ.',
+        'ທັນເວລາ': 'ຮັບປະກັນ <b>ຄວາມໄວ ແລະ ຄ່ອງຕົວ</b> ທາງການເງິນ. ການເບີກຈ່າຍເງິນເດືອນ, ນະໂຍບາຍ ແລະ ງົບປະມານຕ້ອງຮອດຜູ້ຮັບຕາມກຳນົດ.'
+    };
+
+    function openSlogan(k) {
+        document.getElementById('slo-title').innerText = "ຄຳຂວັນ: " + k;
+        document.getElementById('slo-body').innerHTML = slogData[k];
+        openModal('modal-slogan');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // Dropdown Logic
+    function showDropdown() { document.getElementById('dropdown-list').style.display = 'block'; filterDropdown(); }
+    function filterDropdown() {
+        const input = document.getElementById('u_id').value;
+        const list = document.getElementById('dropdown-list');
+        const filtered = ids.filter(id => id.startsWith(input));
+        list.innerHTML = filtered.map(id => `<div class="dropdown-item" onclick="selectId('${id}')">${id}</div>`).join('');
+    }
+    function selectId(v) { document.getElementById('u_id').value = v; document.getElementById('dropdown-list').style.display = 'none'; }
+    document.addEventListener('click', e => { if(!e.target.closest('.dropdown-container')) document.getElementById('dropdown-list').style.display = 'none'; });
+
+    async function login() {
+        const id = document.getElementById('u_id').value;
+        const pass = document.getElementById('u_pass').value;
+        if(!id || !pass) return alert("ປ້ອນຂໍ້ມູນໃຫ້ຄົບ");
+        try {
+            const resp = await fetch(SCRIPT_URL, {method:'POST', body: JSON.stringify({id:id, password:pass, action:"login"})});
+            const res = await resp.json();
+            if(res.status === "success") {
+                currentUnit = res.unit;
+                document.getElementById('display-unit-name').innerText = res.unit;
+                document.getElementById('greeting-area').style.display = 'block';
+                document.getElementById('login-overlay').style.display = 'none';
+                calculate();
+            } else alert("ID ຫຼື ລະຫັດບໍ່ຖືກຕ້ອງ");
+        } catch(e) { alert("Error connecting"); }
+    }
+
+    function switchTab(btn, id) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active'); document.getElementById(id).classList.add('active');
+    }
+
+    function formatCur(el) {
+        let v = el.value.replace(/[^0-9]/g, '');
+        el.value = v !== '' ? Number(v).toLocaleString() : '';
+        calculate();
+    }
+
+    function calculate() {
+        const rank = parseFloat(document.getElementById('rank').value) || 0;
+        const promo = rank * 0.3;
+        const pos = parseFloat(document.getElementById('pos').value) || 0;
+        const years = parseInt(document.getElementById('years').value) || 0;
+        let yB = (years <= 5) ? years*10000 : 50000 + (years-5)*20000; // Simplified for display
+        const deg = parseFloat(document.getElementById('deg').value) || 0;
+        const wife = parseFloat(document.getElementById('wife').value) || 0;
+        const child = (parseInt(document.getElementById('child').value) || 0) * 200000;
+        const eat = parseFloat(document.getElementById('eat').value.replace(/,/g,'')) || 0;
+        const util = parseFloat(document.getElementById('util').value) || 0;
+        const other = parseFloat(document.getElementById('other').value) || 0;
+        const food = parseFloat(document.getElementById('food').value) || 0;
+
+        const base = rank + promo + pos + yB;
+        const soc = base * 0.08;
+        let tax = 0;
+        let taxable = (base - soc) - 1300000;
+        if (taxable > 0) { tax = taxable * 0.05; } // Simplified for modal
+
+        const incTot = base + deg + wife + child + eat;
+        const dedTot = soc + tax + util + other + food;
+        const net = incTot - dedTot;
+
+        document.getElementById('res_net').innerText = Math.round(net).toLocaleString() + ' ກີບ';
+        
+        const fmt = n => Math.round(n).toLocaleString() + " ກີບ";
+        document.getElementById('det-inc').innerHTML = `
+            <div class="detail-row"><span>ເງິນຊັ້ນ + ສົ່ງເສີມ 30%</span><b>${fmt(rank+promo)}</b></div>
+            <div class="detail-row"><span>ໜ້າທີ່ + ປີການ</span><b>${fmt(pos+yB)}</b></div>
+            <div class="detail-row"><span>ຄອບຄົວ + ສຶກສາ</span><b>${fmt(wife+child+deg)}</b></div>
+            <div class="detail-row"><span>ເງິນກິນເພີ່ມ</span><b>${fmt(eat)}</b></div>
+        `;
+        document.getElementById('det-ded').innerHTML = `
+            <div class="detail-row"><span>ປະກັນສັງຄົມ 8%</span><b>${fmt(soc)}</b></div>
+            <div class="detail-row"><span>ອາກອນລາຍໄດ້</span><b>${fmt(tax)}</b></div>
+            <div class="detail-row"><span>ຫັກນ້ຳ-ໄຟ-ອື່ນໆ</span><b>${fmt(util+other+food)}</b></div>
+        `;
+        document.getElementById('det-final').innerText = fmt(net);
+    }
+</script>
+</body>
+</html>
